@@ -38,27 +38,60 @@ import android.app.Activity;
 import android.content.Context;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
+import android.widget.EditText;
 
 import java.io.*;
 import java.net.*;
 
-public class Client extends Activity {
+public class Client extends Thread {
     public String test ="test";
+    private Socket client;
+    public EditText editText;
 
-
-    TelephonyManager telephonyManager  =  ( TelephonyManager
-            )getSystemService( Context.TELEPHONY_SERVICE );
+   // TelephonyManager telephonyManager  =  ( TelephonyManager
+     //       )getSystemService( Context.TELEPHONY_SERVICE );
 
 
     private String getIMEI(){
 
 
-        String androidId2 = Settings.Secure.getString(getContentResolver(),
-                Settings.Secure.ANDROID_ID);
-        String androidIMEI = telephonyManager.getSubscriberId();
+        String androidId2 = "leer";//Settings.Secure.getString(getContentResolver(),
+            //    Settings.Secure.ANDROID_ID);
+       // String androidIMEI = telephonyManager.getSubscriberId();
         return androidId2;
     }
+    public Client(EditText editText) {
+        super("Client");
+        client =null;
+        this.editText=editText;
+    }
 
+    public void run() {
+        createSocket(editText);
+    }
+    public void createSocket(EditText editText){
+        try {
+            client = new Socket("EEEPC", 44441);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("socket started: ");
+        try{
+            PrintWriter out = new PrintWriter(client.getOutputStream(),true);
+          //  BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            //String fromServer=in.readLine();
+            String message = editText.getText().toString();
+        //    out.println("");
+            out.println(message);
+           // System.out.println("Server: " + fromServer);
+          //  in.close();
+            out.close();
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void startClient(String hostName,int portNumber) throws IOException {
 
@@ -77,14 +110,14 @@ public class Client extends Activity {
 
 //                        while ((fromServer = in.readLine()) != null) {
                         fromServer = in.readLine();
-                            System.out.println("Server: " + fromServer);
+                        System.out.println("Server: " + fromServer);
 //                            if (fromServer.equals("Bye."))
 //  //                              break;
 //
 //                            fromUser = stdIn.readLine();
 //                            if (fromUser != null) {
 //                                System.out.println("Client: " + fromUser);
-//                                out.println(fromUser);
+                        out.println("hier client");
 //                            }
 //                        }
                     } finally {
@@ -101,7 +134,7 @@ public class Client extends Activity {
             System.exit(1);
         } catch (IOException e) {
             System.err.println("Couldn't get I/O for the connection to " +
-                    hostName);
+                    hostName +e.toString());
             System.exit(1);
         }
     }
